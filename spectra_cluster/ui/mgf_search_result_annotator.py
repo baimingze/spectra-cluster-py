@@ -347,6 +347,88 @@ def parse_scaffold(filename, fdr, decoy_string="REVERSED"):
                           decoy_string=decoy_string)
 
 
+def get_scfield_peakfile(filename):
+    """
+    Get the score field type and source peak file name from an mzident file, if the user does not provide it.
+    :param filename: The filename of the  mzIdentML file
+    :return: score field string, peak file name
+    """
+    reader = mzid.MzIdentML(filename)
+
+    #get score field
+    score_fields=[
+        "Scaffold:Peptide Probability",
+        "MS-GF:SpecEValue",
+        "X\\!Tandem:expect",
+        "mascot:expectation value"
+    ]
+
+    score_field = None
+    for spec_ident in reader.iterfind('SpectrumIdentificationItem'):
+        for temp_field in score_fields:
+            if temp_field in spec_ident.keys():
+                score_field = temp_field
+                break
+        if not score_field:
+            raise Exception("Failed to find supplied score field '" +
+                        "' in mzIdentML file %s. \nDetails:\n%s"%(filename, str(spec_ident)))
+        #only check one SpectrumIdentificationItem
+
+    peak_files = list()
+    for spec_data in reader.iterfind('SpectraData'):
+        location = spec_data['location']
+        peak_file_name = os.path.split(location)[1]
+        peak_files.append(peak_file_name)
+    if len(peak_files)> 1:
+        raise Exception("MzIdentML file %s has multiple peak files: %s, %s..."%(filename, peak_files[0], peak_files[1]))
+    return (score_field, peak_files[0])
+
+
+def get_scorefield(filename):
+    """
+    Get the score field type from an mzident file, if the user does not provide it.
+    :param filename: The filename of the  mzIdentML file
+    :return: score field string
+    """
+    reader = mzid.MzIdentML(filename)
+    #get score field
+    score_fields=[
+        "Scaffold:Peptide Probability",
+        "MS-GF:SpecEValue",
+        "X\\!Tandem:expect",
+        "mascot:expectation value"
+    ]
+
+    score_field = None
+    for spec_ident in reader.iterfind('SpectrumIdentificationItem'):
+        for temp_field in score_fields:
+            if temp_field in spec_ident.keys():
+                score_field = temp_field
+                break
+        if not score_field:
+            raise Exception("Failed to find supplied score field '" +
+                        "' in mzIdentML file %s. \nDetails:\n%s"%(filename, str(spec_ident)))
+        #only check one SpectrumIdentificationItem
+
+
+def get_source_peak_file(filename):
+    """
+    Get the source peak file which this mzident file generated from.
+    :param filename: The filename of the  mzIdentML file
+    :return: peak file name
+    """
+
+    reader = mzid.MzIdentML(filename)
+    peak_files = list()
+    for spec_data in reader.iterfind('SpectraData'):
+        location = spec_data['location']
+        peak_file_name = os.path.split(location)[1]
+        peak_files.append(peak_file_name)
+    if len(peak_files)> 1:
+        raise Exception("MzIdentML file %s has multiple peak files: %s, %s..."%(filename, peak_files[0], peak_files[1]))
+    return peak_files[0]
+
+
 class Psm:
     """
     Represent a peptide spectrum match extracted from the search results.
