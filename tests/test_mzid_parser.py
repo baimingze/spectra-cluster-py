@@ -15,19 +15,20 @@ class MzIdParserTest(unittest.TestCase):
 
 
     def testParseMzIdentMl(self):
-        score_field =mgf_search_result_annotator.get_scorefield(filename=self.testfile)
+        # score_field =mgf_search_result_annotator.get_scorefield(filename=self.testfile)
 
-        self.assertEqual("Scaffold:Peptide Probability", score_field)
-        print(score_field)
-        resutls = mgf_search_result_annotator.parser_mzident(filename=self.testfile,
-                                                             score_field=score_field,
-                                                             fdr=2)
+        # self.assertEqual("Scaffold:Peptide Probability", score_field)
+        # print(score_field)
+        resutls = mgf_search_result_annotator.parse_mzid_by_score_field(filename=self.testfile,
+                                                             fdr=2, decoy_string="REVERSED")
+
         self.assertEqual(6573, len(resutls))
 
 
-    def testGetScfield(self):
-        score_field = mgf_search_result_annotator.get_scorefield(filename=self.testfile)
-        self.assertEqual("Scaffold:Peptide Probability", score_field)
+
+    # def testGetScfield(self):
+    #     score_field = mgf_search_result_annotator.get_scorefield(filename=self.testfile)
+    #     self.assertEqual("Scaffold:Peptide Probability", score_field)
 
 
 if __name__ == "__main__":

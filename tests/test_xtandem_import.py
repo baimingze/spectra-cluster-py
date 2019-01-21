@@ -15,6 +15,11 @@ class XTandemImportTest(unittest.TestCase):
                                                              score_field="X\\!Tandem:expect",
                                                              title_field="spectrumID", fdr=0.01,
                                                              decoy_string="REVERSED")
+
+        self.assertEqual(len(results), 3579)
+
+        results = mgf_search_result_annotator.parse_mzid_by_score_field(filename=self.testfile,
+                                                                        fdr=0.01, decoy_string="REVERSED")
         self.assertEqual(len(results), 3579)
 
         for psm in results:

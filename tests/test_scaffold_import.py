@@ -53,5 +53,11 @@ class ScaffoldImportTest(unittest.TestCase):
                                                              fdr=2)
         self.assertEqual(6573, len(resutls))
 
+        results = mgf_search_result_annotator.parse_mzid_by_score_field(filename=self.testfile,
+                                                             fdr=2, decoy_string="REVERSED")
+
+        self.assertEqual(6573, len(results))
+
+
 if __name__ == "__main__":
     unittest.main()

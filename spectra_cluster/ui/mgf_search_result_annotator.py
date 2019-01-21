@@ -346,33 +346,56 @@ def parse_scaffold(filename, fdr, decoy_string="REVERSED"):
                           fdr=fdr,
                           decoy_string=decoy_string)
 
-
-def get_scorefield(filename):
+def parse_general_mzident(filename, score_field, fdr, decoy_string="REVERSED"):
     """
-    Get the score field type from an mzident file, if the user does not provide it.
+    Parses identification data from an  mzid output file
+
+    :param filename: The filename of the mzIdentML file
+    :param fdr: Target FDR as fractional (ie. 0.01 for 1%). If set to '2'
+                the original cut-off is used.
+    :param decoy_string: The string to identify decoy proteins.
+    :return: A list of PSM objects
+    """
+
+    return parser_mzident(filename=filename,
+                          score_field=score_field,
+                          fdr=fdr,
+                          decoy_string=decoy_string)
+
+
+def parse_mzid_by_score_field(filename, fdr, decoy_string):
+    """
+    Get the score field type from an mzident file, if the user doe
+
+
+    s not provide it.
     :param filename: The filename of the  mzIdentML file
-    :return: score field string
+    :return: parsring the identMZ file by score field string
     """
     with  mzid.MzIdentML(filename) as reader:
-        #get score field
-        score_fields=[
-            "Scaffold:Peptide Probability",
-            "MS-GF:SpecEValue",
-            "X\\!Tandem:expect",
-            "mascot:expectation value"
-        ]
+        parsers={
+            "Scaffold:Peptide Probability": parse_scaffold,
+            "MS-GF:SpecEValue":parse_msgfplus_mzident,
+            "X\\!Tandem:expect":parse_xtandem_mzident,
+            "mascot:expectation value":parser_mzident #no special settings
+        }
 
+        #get score field from mzidentML file
         score_field = None
         for spec_ident in reader.iterfind('SpectrumIdentificationItem'):
-            for temp_field in score_fields:
-                if temp_field in spec_ident.keys():
-                    score_field = temp_field
+            for temp_score_field in parsers.keys():
+                if temp_score_field in spec_ident.keys():
+                    score_field = temp_score_field
                     break
             if not score_field:
                 raise Exception("Failed to find supplied score field '" +
-                            "' in mzIdentML file %s. \nDetails:\n%s"%(filename, str(spec_ident)))
+                            "' in mzIdentML file %s. \nDetails:\n%s.\n\
+                            we have checked: %s"%(filename, str(spec_ident), str(parsers.keys())))
             #only check one SpectrumIdentificationItem
-    return score_field
+            break
+
+    #choose the right parser and do the parsing
+    return parsers[score_field](filename=filename, fdr=fdr, decoy_string=decoy_string)
 
 
 class Psm:
@@ -531,16 +554,19 @@ def main():
 
     if search_format.lower() == "msgf+":
         search_results = parse_msgfplus(search_file, fdr)
-    elif search_format.lower() == "msgf_ident":
-        search_results = parse_msgfplus_mzident(search_file, fdr)
     elif search_format.lower() == "msamanda":
         search_results = parse_msamanda(search_file, fdr, input_file)
-    elif search_format.lower() == "scaffold":
-        search_results = parse_scaffold(filename=search_file, fdr=fdr,
-                                        decoy_string=arguments["--decoy_string"])
-    elif search_format.lower() == "xtandem":
-        search_results = parse_xtandem_mzident(filename=search_file, fdr=fdr,
-                                               decoy_string=arguments["--decoy_string"])
+    elif search_format.lower() == "identML":
+        search_results = parse_mzid_by_score_field(search_file, fdr,
+                                        decoy_string=arguments.get("--decoy_string", "REVERSED"))
+    # elif search_format.lower() == "msgf_ident":
+    #     search_results = parse_msgfplus_mzident(search_file, fdr)
+    # elif search_format.lower() == "scaffold":
+    #     search_results = parse_scaffold(filename=search_file, fdr=fdr,
+    #                                     decoy_string=arguments["--decoy_string"])
+    # elif search_format.lower() == "xtandem":
+    #     search_results = parse_xtandem_mzident(filename=search_file, fdr=fdr,
+    #                                            decoy_string=arguments["--decoy_string"])
     else:
         print("Error: Unknown search engine result format set. "
               "Allowed values are: [MSGF+, MSAmanda, Scaffold, XTandem]")
