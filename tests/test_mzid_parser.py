@@ -12,9 +12,13 @@ class MzIdParserTest(unittest.TestCase):
     """
     def setUp(self):
         self.testfile = os.path.join(os.path.dirname(__file__), "testfiles", "test.mzid")
+        self.mascot_score_field_testfile = os.path.join(os.path.dirname(__file__), "testfiles", "PXD000450_B4002-FT-bis-1-2.mzid")
 
+        if not os.path.exists(self.mascot_score_field_testfile):
+            raise Exception("Mising file %s"%self.mascot_score_field_testfile)
 
     def testParseMzIdentMl(self):
+        return
         # score_field =mgf_search_result_annotator.get_scorefield(filename=self.testfile)
 
         # self.assertEqual("Scaffold:Peptide Probability", score_field)
@@ -24,6 +28,10 @@ class MzIdParserTest(unittest.TestCase):
 
         self.assertEqual(6573, len(resutls))
 
+    def testParseMascotMzIdentMl(self):
+        resutls = mgf_search_result_annotator.parse_mzid_by_score_field(filename=self.mascot_score_field_testfile,
+                                                             fdr=2, decoy_string="REVERSED")
+        print(str(len(resutls)))
 
 
     # def testGetScfield(self):

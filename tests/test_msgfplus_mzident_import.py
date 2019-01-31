@@ -16,7 +16,9 @@ class MsgfpIdentImportTest(unittest.TestCase):
         self.mgf_file = os.path.join(os.path.dirname(__file__), "testfiles", "test.mgf")
 
     def test_import_testfile(self):
-        results = mgf_search_result_annotator.parse_msgfplus_mzident(self.ident_file, 0.05)
+        # results = mgf_search_result_annotator.parse_msgfplus_mzident(self.ident_file, 0.05)
+        # results = mgf_search_result_annotator.parse_msgfplus_mzident(self.ident_file, 0.05)
+        results = mgf_search_result_annotator.parse_mzid_by_score_field(filename=self.ident_file,fdr=0.05)
 
         self.assertEqual(len(results), 5, "Incorrect number of PSMs loaded")
 

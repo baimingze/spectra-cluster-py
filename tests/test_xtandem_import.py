@@ -11,12 +11,12 @@ class XTandemImportTest(unittest.TestCase):
         self.testfile = os.path.join(os.path.dirname(__file__), "testfiles", "test_xtandem.mzid")
 
     def testXtandemImport(self):
-        results = mgf_search_result_annotator.parser_mzident(filename=self.testfile,
-                                                             score_field="X\\!Tandem:expect",
-                                                             title_field="spectrumID", fdr=0.01,
-                                                             decoy_string="REVERSED")
-
-        self.assertEqual(len(results), 3579)
+        # results = mgf_ijjsearch_result_annotator.parser_mzident(filename=self.testfile,
+        #                                                      score_field="X\\!Tandem:expect",
+        #                                                      title_field="spectrumID", fdr=0.01,
+        #                                                      decoy_string="REVERSED")
+        #
+        # self.assertEqual(len(results), 3579)
 
         results = mgf_search_result_annotator.parse_mzid_by_score_field(filename=self.testfile,
                                                                         fdr=0.01, decoy_string="REVERSED")

@@ -42,16 +42,16 @@ class ScaffoldImportTest(unittest.TestCase):
         self.assertEqual(6573, n_target)
         self.assertEqual(14095, n_decoy)
 
-    def testParseScaffold(self):
-        results = mgf_search_result_annotator.parse_scaffold(self.testfile, 2)
+    # def testParseScaffold(self):
+    #     results = mgf_search_result_annotator.parse_scaffold(self.testfile, 2)
+    #
+    #     self.assertEqual(6573, len(results))
 
-        self.assertEqual(6573, len(results))
-
-    def testParseMzIdentMl(self):
-        resutls = mgf_search_result_annotator.parser_mzident(filename=self.testfile,
-                                                             score_field="Scaffold:Peptide Probability",
-                                                             fdr=2)
-        self.assertEqual(6573, len(resutls))
+    def testParseScaffoldMzIdentMl(self):
+        # resutls = mgf_search_result_annotator.parser_mzident(filename=self.testfile,
+        #                                                      score_field="Scaffold:Peptide Probability",
+        #                                                      fdr=2)
+        # self.assertEqual(6573, len(resutls))
 
         results = mgf_search_result_annotator.parse_mzid_by_score_field(filename=self.testfile,
                                                              fdr=2, decoy_string="REVERSED")

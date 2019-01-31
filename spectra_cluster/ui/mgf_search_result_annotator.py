@@ -288,7 +288,7 @@ def parser_mzident(filename, score_field, title_field=None,
     return filtered_psms
 
 
-def parse_xtandem_mzident(filename, fdr, decoy_string="REVERSED"):
+def parse_xtandem_mzident(filename, score_field, fdr, decoy_string="REVERSED"):
     """
     Parses X!Tandem output in the mzIdentML format.
 
@@ -297,6 +297,8 @@ def parse_xtandem_mzident(filename, fdr, decoy_string="REVERSED"):
     :param decoy_string: The decoy string to use to identify decoy proteins.
     :return: A list of PSM objects.
     """
+    if not score_field == "X\\!Tandem:expect":
+        raise Exception("Error score_field, it should be 'X\\!Tandem:expect', not %s"%score_field)
 
     psms = parser_mzident(filename, score_field="X\\!Tandem:expect",
                           title_field="spectrumID", decoy_string=decoy_string,
@@ -311,7 +313,7 @@ def parse_xtandem_mzident(filename, fdr, decoy_string="REVERSED"):
     return psms
 
 
-def parse_msgfplus_mzident(filename, fdr, decoy_string="REVERSED"):
+def parse_msgfplus_mzident(filename, score_field, fdr, decoy_string="REVERSED"):
     """
     Parses MSGF+ output in the mzIdentML format.
 
@@ -320,6 +322,9 @@ def parse_msgfplus_mzident(filename, fdr, decoy_string="REVERSED"):
     :param decoy_string: The decoy string to use to identify decoy proteins.
     :return: A list of PSM objects.
     """
+
+    if not score_field == "MS-GF:QValue":
+        raise Exception("Error score_field, it should be 'MS-GF:QValue', not %s"%score_field)
 
     psms = parser_mzident(filename, score_field="MS-GF:QValue",
                           title_field="spectrumID", decoy_string=decoy_string,
@@ -331,7 +336,7 @@ def parse_msgfplus_mzident(filename, fdr, decoy_string="REVERSED"):
     return psms
 
 
-def parse_scaffold(filename, fdr, decoy_string="REVERSED"):
+def parse_scaffold(filename, score_field, fdr, decoy_string="REVERSED"):
     """
     Parses identification data from a Scaffold mzid output file
 
@@ -341,6 +346,9 @@ def parse_scaffold(filename, fdr, decoy_string="REVERSED"):
     :param decoy_string: The string to identify decoy proteins.
     :return: A list of PSM objects
     """
+    if not score_field == "Scaffold:Peptide Probability":
+        raise Exception("Error score_field, it should be 'Scaffold:Peptide Probability', not %s"%score_field)
+
     return parser_mzident(filename=filename,
                           score_field="Scaffold:Peptide Probability",
                           fdr=fdr,
@@ -356,14 +364,15 @@ def parse_general_mzident(filename, score_field, fdr, decoy_string="REVERSED"):
     :param decoy_string: The string to identify decoy proteins.
     :return: A list of PSM objects
     """
-
+    print("Start to parse general mzident files, with score field: %s"%score_field)
     return parser_mzident(filename=filename,
                           score_field=score_field,
                           fdr=fdr,
                           decoy_string=decoy_string)
 
 
-def parse_mzid_by_score_field(filename, fdr, decoy_string):
+
+def parse_mzid_by_score_field(filename, fdr, decoy_string="REVERSED"):
     """
     Get the score field type from an mzident file, if the user doe
 
@@ -372,12 +381,13 @@ def parse_mzid_by_score_field(filename, fdr, decoy_string):
     :param filename: The filename of the  mzIdentML file
     :return: parsring the identMZ file by score field string
     """
+    print(filename)
     with  mzid.MzIdentML(filename) as reader:
         parsers={
             "Scaffold:Peptide Probability": parse_scaffold,
-            "MS-GF:SpecEValue":parse_msgfplus_mzident,
+            "MS-GF:QValue":parse_msgfplus_mzident,
             "X\\!Tandem:expect":parse_xtandem_mzident,
-            "mascot:expectation value":parser_mzident #no special settings
+            "mascot:expectation value":parse_general_mzident #no special settings
         }
 
         #get score field from mzidentML file
@@ -395,7 +405,7 @@ def parse_mzid_by_score_field(filename, fdr, decoy_string):
             break
 
     #choose the right parser and do the parsing
-    return parsers[score_field](filename=filename, fdr=fdr, decoy_string=decoy_string)
+    return parsers[score_field](filename=filename, score_field=score_field, fdr=fdr, decoy_string=decoy_string)
 
 
 class Psm:
@@ -556,7 +566,7 @@ def main():
         search_results = parse_msgfplus(search_file, fdr)
     elif search_format.lower() == "msamanda":
         search_results = parse_msamanda(search_file, fdr, input_file)
-    elif search_format.lower() == "identML":
+    elif search_format.lower() == "identml":
         search_results = parse_mzid_by_score_field(search_file, fdr,
                                         decoy_string=arguments.get("--decoy_string", "REVERSED"))
     # elif search_format.lower() == "msgf_ident":
