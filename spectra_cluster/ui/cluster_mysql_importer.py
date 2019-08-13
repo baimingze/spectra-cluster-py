@@ -38,7 +38,7 @@ from docopt import docopt
 package_path = os.path.abspath(os.path.split(sys.argv[0])[0]) + os.path.sep + ".." + os.path.sep + ".."
 sys.path.insert(0, package_path)
 
-import spectra_cluster.analyser.cluster_mysql_importer as cluster_mysql_importer
+import spectra_cluster.analyser.cluster_mysql_importer_new as cluster_mysql_importer
 import spectra_cluster.clustering_parser as clustering_parser
 
 
@@ -49,7 +49,7 @@ def create_analyser(arguments):
     :param arguments: The command line parameters
     :return: An Comparer object
     """
-    analyser = cluster_mysql_importer.ClusterSqliteImporter()
+    analyser = cluster_mysql_importer.ClusterMySqlImporter()
 
     if arguments["--only_identified"]:
         analyser.add_to_unidentified = False
@@ -102,7 +102,7 @@ def main():
 #        analyser.update_clusters_afile()  #too slow to update a huge table
         analyser.clear() 
         print("Done importing of " + clustering_file)
-        analyser.import_projects()
+        # analyser.import_projects()
         analyser.close_db()
         return
     
@@ -124,12 +124,12 @@ def main():
         parser0 = clustering_parser.ClusteringParser(clustering_file)
         for cluster in parser0:
             analyser.process_cluster(cluster)
-    	# do the  importing to database 
+    	# do the  importing to databasef
         analyser.import_afile() 
 #        analyser.update_clusters_afile()  #too slow to update a huge table
         analyser.clear() 
         print("Done importing of " + clustering_file)
-    analyser.import_projects()
+    # analyser.import_projects()
     analyser.close_db()
 
 

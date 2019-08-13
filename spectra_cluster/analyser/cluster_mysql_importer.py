@@ -47,6 +47,7 @@ class ClusterSqliteImporter(common.AbstractAnalyser):
                                           db='pride_cluster_t',
                                           charset='utf8mb4',
                                           cursorclass=pymysql.cursors.DictCursor)
+        zo
         print("Opened database successfully");
 
         #deal with the table name

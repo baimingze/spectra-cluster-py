@@ -42,9 +42,18 @@ class Cluster:
         self.unidentified_spectra = 0
         self.charge = Cluster._calculate_charge(self._spectra)
 
+        self.sequence_taxids_map = dict()
         for spectrum in self._spectra:
             if spectrum.is_identified():
                 self.identified_spectra += 1
+                sequences = spectrum.get_clean_sequences() #???  psms?
+                taxids = spectrum.taxids
+                for sequence in sequences:
+                    taxid_list = self.sequence_taxids_map.get(sequence, [])
+                    for taxid in taxids:
+                        if taxid not in taxid_list:
+                            taxid_list.append(taxid)
+                    self.sequence_taxids_map[sequence] = taxid_list
             else:
                 self.unidentified_spectra += 1
 
@@ -69,6 +78,7 @@ class Cluster:
                 self.sequence_ratios_il[sequence] = self.sequence_counts_il[sequence] / self.identified_spectra
 
             self.max_il_ratio = max(self.sequence_ratios_il.values())
+
         else:
             # set to default values for unidentified clusters
             self.sequence_ratios = dict()
@@ -131,7 +141,7 @@ class Cluster:
         :param spectra: The spectra to derive the sequence counts from.
         :param ignore_i_l: If set I and L are treated as equivalent. If set all I are
           replace by L and the sequences in the returned map may not correspond to the
-          originally identified sequences.
+          originally identified sequences
         :return: A dict with a sequence as key and the number of occurrences as value.
         """
         sequence_counts = dict()
