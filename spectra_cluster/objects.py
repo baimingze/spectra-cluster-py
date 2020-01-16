@@ -131,6 +131,14 @@ class Cluster:
         self._spectra = list(new_spectra)
         self._update_properties()
 
+    def get_sequence_ratios_il(self):
+        """
+        Returns the calculated sequence_ratios_il as a string. 
+
+        :return: the cluster's sequence_ratios_il string
+        """
+        return self.sequence_ratios_il 
+
     @staticmethod
     def calculate_sequence_counts(spectra, ignore_i_l=False):
         """
