@@ -92,6 +92,7 @@ def main():
         input_files = arguments['--input_files']
         clustering_files = input_files.split(' ')
 
+    output_file = "output.msp"
     if arguments["--output"] :
         output_file = arguments["--output"] 
 
